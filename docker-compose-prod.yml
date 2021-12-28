@@ -39,9 +39,6 @@ services:
     - EMAIL_PASSWORD=$EMAIL_PASSWORD
     - EMAIL_HOST=$EMAIL_HOST
     - EMAIL_PORT=$EMAIL_PORT
-    volumes:
-      - ./server:/home/node/app:ro
-      - /home/node/app/node_modules
     networks:
       - app
 
