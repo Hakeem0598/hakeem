@@ -1,0 +1,21 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const auth_controller_1 = require("./../controllers/auth.controller");
+const auth_schema_1 = require("./../schema/auth.schema");
+const express_1 = require("express");
+const auth_controller_2 = require("../controllers/auth.controller");
+const middleware_1 = require("../middleware");
+const requireUser_1 = __importDefault(require("../middleware/requireUser"));
+const auth_schema_2 = require("../schema/auth.schema");
+const user_schema_1 = require("./../schema/user.schema");
+const authRouter = (0, express_1.Router)();
+authRouter.get('/sign-out', auth_controller_2.signOutHandler);
+authRouter.post('/sign-in', (0, middleware_1.validateRequest)(auth_schema_2.signInSchema), auth_controller_2.signInHandler);
+authRouter.post('/sign-up', (0, middleware_1.validateRequest)(user_schema_1.createUserSchema), auth_controller_2.signUpHandler);
+authRouter.post('/forgot-password', (0, middleware_1.validateRequest)(auth_schema_1.forgotPasswordSchema), auth_controller_1.forgotPasswordHandler);
+authRouter.post('/reset-password/:token', (0, middleware_1.validateRequest)(auth_schema_1.resetPasswordSchema), auth_controller_1.resetPasswordHandler);
+authRouter.patch('/password', requireUser_1.default, (0, middleware_1.validateRequest)(auth_schema_2.updatePasswordSchema), auth_controller_2.updatePasswordHandler);
+exports.default = authRouter;

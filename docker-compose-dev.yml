@@ -1,0 +1,80 @@
+version: "3.8"
+
+services:
+  client:
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./client
+    env_file: ./.env
+    environment:
+      - REACT_APP_API_URL=$REACT_APP_API_URL
+      - REACT_APP_STRIPE_PUBLISHABLE_KEY=$REACT_APP_STRIPE_PUBLISHABLE_KEY
+    volumes:
+      - ./client:/home/node/app:ro
+      - /home/node/app/node_modules
+    networks:
+      - frontend
+
+  server:
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./server
+    restart: unless-stopped
+    ports:
+      - $SERVER_PORT:$SERVER_PORT
+    env_file: ./.env
+    environment: 
+    - DB_URL=mongodb://db/hakeem
+    - SERVER_PORT=$SERVER_PORT
+    - CLIENT_ORIGIN=$CLIENT_ORIGIN
+    - SESSION_EXPIRES_IN=$SESSION_EXPIRES_IN
+    - SESSION_SECRET=$SESSION_SECRET
+    - STRIPE_SECRET_KEY=$STRIPE_SECRET_KEY
+    - STRIPE_WEBHOOK_SECRET=$STRIPE_WEBHOOK_SECRET
+    - STRIPE_WEBHOOK_SECRET_PROD=$STRIPE_WEBHOOK_SECRET_PROD
+    - EMAIL_USERNAME=$EMAIL_USERNAME
+    - EMAIL_PASSWORD=$EMAIL_PASSWORD
+    - EMAIL_HOST=$EMAIL_HOST
+    - EMAIL_PORT=$EMAIL_PORT
+    volumes:
+      - ./server:/home/node/app:ro
+      - /home/node/app/node_modules
+    networks:
+      - frontend
+      - backend
+
+  db:
+    image: mongo:4.2.18-rc0
+    restart: unless-stopped
+    ports:
+      - 27017:27017
+    volumes:
+      - db:/data/db
+    networks:
+      - backend
+
+  caddy:
+    depends_on:
+      - server
+      - client
+    restart: unless-stopped
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./caddy
+    ports:
+      - 3000:80
+    networks:
+      - frontend
+      - backend
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes: 
+  db:
+  caddy_data:
+  caddy_config:
+
+networks:
+  frontend:
+  backend:

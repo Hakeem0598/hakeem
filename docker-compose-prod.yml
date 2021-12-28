@@ -1,0 +1,53 @@
+version: "3.8"
+
+services:
+  client:
+    build:
+      dockerfile: Dockerfile
+      context: ./client
+      args:
+        - CADDYFILE=${CADDYFILE}
+        - REACT_APP_API_URL=${REACT_APP_API_URL}
+        - REACT_APP_STRIPE_PUBLISHABLE_KEY=$REACT_APP_STRIPE_PUBLISHABLE_KEY
+    env_file: ./.env
+    ports: 
+      - 3000:80
+    volumes:
+      - caddy-data:/data
+      - caddy-config:/config
+    networks:
+      - app
+
+  server:
+    build:
+      dockerfile: Dockerfile
+      context: ./server
+    restart: unless-stopped
+    ports:
+      - $SERVER_PORT:$SERVER_PORT
+    env_file: ./server/.env
+    environment: 
+    - DB_URL=$DB_URL
+    - SERVER_PORT=$SERVER_PORT
+    - CLIENT_ORIGIN=$CLIENT_ORIGIN
+    - SESSION_EXPIRES_IN=$SESSION_EXPIRES_IN
+    - SESSION_SECRET=$SESSION_SECRET
+    - STRIPE_SECRET_KEY=$STRIPE_SECRET_KEY
+    - STRIPE_WEBHOOK_SECRET=$STRIPE_WEBHOOK_SECRET
+    - STRIPE_WEBHOOK_SECRET_PROD=$STRIPE_WEBHOOK_SECRET_PROD
+    - EMAIL_USERNAME=$EMAIL_USERNAME
+    - EMAIL_PASSWORD=$EMAIL_PASSWORD
+    - EMAIL_HOST=$EMAIL_HOST
+    - EMAIL_PORT=$EMAIL_PORT
+    volumes:
+      - ./server:/home/node/app:ro
+      - /home/node/app/node_modules
+    networks:
+      - app
+
+networks:
+  app:
+
+volumes:
+  caddy-data:
+  caddy-config:
