@@ -1,7 +1,10 @@
 carts2.club {
-    tls ayo75@icloud.com
-    root * /srv
-    file_server
+    route * {
+        tls ayo75@icloud.com
+        root * /srv
+        try_files {path} {path}/ /index.html
+        file_server
+    }
     
     route /api* {
         reverse_proxy server:8000
