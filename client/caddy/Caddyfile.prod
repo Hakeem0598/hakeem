@@ -1,6 +1,7 @@
 carts2.club {
+    tls ayo75@icloud.com
+    
     route * {
-        tls ayo75@icloud.com
         root * /srv
         try_files {path} {path}/ /index.html
         file_server
